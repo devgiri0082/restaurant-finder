@@ -42,7 +42,14 @@ export default function App() {
     }, []);
     return (
         <div className="container" >
-            <div className="search"><input type="text" ref={valueRef} onChange={() => empty()} /> <button className="search" onClick={() => changeSearch()}>🔎</button></div>
+            <div className="search">
+                <input type="text" ref={valueRef} onChange={() => empty()} />
+                <button className="search" onClick={() => changeSearch()}>🔎</button>
+                <label htmlFor="filters">Choose a filter: </label>
+                <select name="filters" className="filters" onChange={(e) => changeFilter(e.target.value)}>
+                    {allFilters.map(elem => <option className="filter">{elem}</option>)}
+                </select>
+            </div>
             <table>
                 <tr>
                     <th>S.N</th>
@@ -65,10 +72,7 @@ export default function App() {
                     </tr>)
                 })}
             </table>
-            { currentPage !== null && <div className="all-button"><button className="page" onClick={() => goBack()}>back</button><button className="page" onClick={() => goNext()}>next</button></div>}
-            <div className="title">Filters</div>
-            <div className="allFilter">
-                {allFilters.map(elem => <button className="filter" onClick={() => changeFilter(elem)}>{elem}</button>)}</div>
+            {currentPage !== null && <div className="all-button"><button className="page" onClick={() => goBack()}>back</button><button className="page" onClick={() => goNext()}>next</button></div>}
         </div >
     )
 
@@ -80,6 +84,7 @@ export default function App() {
         }
     }
     function changeSearch() {
+        console.log(valueRef.current.value);
         if (valueRef.current.value === "") {
             changeFilter(currentGenre);
             setCurrentPage(0);
@@ -87,13 +92,8 @@ export default function App() {
         }
         let filtered = [];
         currentFiltered.forEach(elem => {
-            if (elem.name.toLowerCase().includes(valueRef.current.value)) {
-                filtered.push(elem);
-            } else if (elem.city.toLowerCase().includes(valueRef.current.value)) {
-                filtered.push(elem);
-            } else if (elem.genre.split(",").map(elem => elem.toLowerCase()).includes(valueRef.current.value)) {
-                filtered.push(elem);
-            }
+            let info = elem.name.toLowerCase() + "," + elem.city.toLowerCase() + ", " + elem.genre.toLowerCase() + ", " + elem.state.toLowerCase();
+            if (info.includes(valueRef.current.value.toLowerCase())) filtered.push(elem);
         })
         setCurrentFiltered(filtered);
         if (filtered.length <= 10) setCurrentPage(null);
@@ -101,6 +101,7 @@ export default function App() {
 
     }
     function changeFilter(elem) {
+        valueRef.current.value = "";
         setCurrentGenre(elem);
         let current = [];
         if (elem === "All") {
